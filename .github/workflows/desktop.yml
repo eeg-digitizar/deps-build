@@ -1,0 +1,20 @@
+name: Desktop
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  install:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: |
+          mkdir temp && cd temp
+          sudo ../build_all_for_pc.sh
+          cd .. && sudo rm -rf temp

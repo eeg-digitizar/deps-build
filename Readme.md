@@ -2,16 +2,20 @@
 This repository contains scripts and instructions to build the DigitizAR dependencies. 
 
 ## Build for Android
-The libraries required to build the Android application can be crosscompiled inside a Docker Container:
+The libraries required to build the Android application can be downloaded from the GitHub Aciton output or crosscompiled inside a Docker Container:
 1. Build the docker image:
     ```sh
-    docker build -t lib-builder - < Dockerfile
+    docker build -t ghcr.io/eeg-digitizar/deps-builder:main - < Dockerfile
+    ```
+   alternatively you can pull it from the GitHub Container Registry:
+    ```sh
+    docker pull ghcr.io/eeg-digitizar/deps-builder:main
     ```
 2. Create the ouput directory (the built libraries will be installed here) and run the container 
     ```sh
     export ANDROID_LIB_HOME=~/Libraries # modify this
     mkdir -p $ANDROID_LIB_HOME
-    docker run -it -w /build_in -v "$(pwd):/build_in" -v "$ANDROID_LIB_HOME:/build_out" lib-builder
+    docker run -it -w /build_in -v "$(pwd):/build_in" -v "$ANDROID_LIB_HOME:/build_out" ghcr.io/eeg-digitizar/deps-builder:main
     ```
 3. Inside the container build the libraries
     ```sh
@@ -36,6 +40,6 @@ Build and install the libraries if you want to run the DigitizAR pipeline on you
 ```sh
 mkdir temp && cd temp
 sudo ../build_all_for_pc.sh
-cd .. && rm -rf temp
+cd .. && sudo rm -rf temp
 ```
 This will download the dependencies, build and install them. Note: The script was developed for Ubuntu 20.04.

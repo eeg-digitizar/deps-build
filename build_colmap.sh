@@ -12,7 +12,13 @@ git clone https://github.com/eeg-digitizar/colmap.git
 cd colmap
 git checkout android
 
-for BUILD_TYPE in Debug Release RelWithDebInfo MinSizeRel; do
+BUILD_TYPES="$1 $2 $3 $4"
+if [[ -z "${BUILD_TYPES// }" ]]; then
+    echo "Build type not passed as a parameter. Building all ..."
+    BUILD_TYPES="Debug Release RelWithDebInfo MinSizeRel"
+fi
+
+for BUILD_TYPE in ${BUILD_TYPES}; do
     for ANDROID_ABI in "armeabi-v7a" "arm64-v8a" "x86" "x86_64"; do
 
         echo "----------------------------------------------------"
@@ -42,12 +48,9 @@ for BUILD_TYPE in Debug Release RelWithDebInfo MinSizeRel; do
             -DANDROID_PLATFORM=android-$MINSDKVERSION \
             -DANDROID_STL=c++_shared \
             $NEON \
-            -S . -B build \
-            &>>build-${BUILD_TYPE}-${ANDROID_ABI}.log &&
-            $CMAKE_HOME/cmake --build build --config ${BUILD_TYPE} -j$(nproc) \
-                &>>build-${BUILD_TYPE}-${ANDROID_ABI}.log &&
-            $CMAKE_HOME/cmake --build build --target install --config ${BUILD_TYPE} \
-                &>>build-${BUILD_TYPE}-${ANDROID_ABI}.log &&
+            -S . -B build &&
+            $CMAKE_HOME/cmake --build build --config ${BUILD_TYPE} -j$(nproc) &&
+            $CMAKE_HOME/cmake --build build --target install --config ${BUILD_TYPE} &&
             continue
         break 2 # last command did not get to continue
     done

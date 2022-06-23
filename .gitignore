@@ -1,0 +1,6 @@
+*
+
+!.gitignore
+!Readme.md
+!Dockerfile
+!*.sh

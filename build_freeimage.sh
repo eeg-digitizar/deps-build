@@ -3,16 +3,22 @@
 SCRIPT_DIR=$(dirname ${BASH_SOURCE[0]})
 if [ ! -d "$SCRIPT_DIR" ] || [ $SCRIPT_DIR = '.' ]; then SCRIPT_DIR="$PWD"; fi
 
-if [ -d "freeimage-cmake" ]; then
+if [ -d "FreeImage" ]; then
     echo "Deleting source directory"
-    rm -rf "freeimage-cmake"
+    rm -rf "FreeImage"
 fi
 
 git clone https://github.com/eeg-digitizar/FreeImage.git
-cd freeimage-cmake
+cd FreeImage
 git checkout 3.18
 
-for BUILD_TYPE in Debug Release RelWithDebInfo MinSizeRel; do
+BUILD_TYPES="$1 $2 $3 $4"
+if [[ -z "${BUILD_TYPES// }" ]]; then
+    echo "Build type not passed as a parameter. Building all ..."
+    BUILD_TYPES="Debug Release RelWithDebInfo MinSizeRel"
+fi
+
+for BUILD_TYPE in ${BUILD_TYPES}; do
     for ANDROID_ABI in "armeabi-v7a" "arm64-v8a" "x86" "x86_64"; do
 
         echo "----------------------------------------------------"

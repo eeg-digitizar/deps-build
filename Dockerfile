@@ -10,7 +10,7 @@ WORKDIR /tmp
 RUN dpkg --add-architecture i386 \
     && apt-get update -qq \
     && apt-get install -qq -y libc6:i386 libncurses5:i386 libstdc++6:i386 lib32z1 libbz2-1.0:i386 > /dev/null \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -qq -y wget curl git unzip default-jre build-essential > /dev/null \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -qq -y wget curl git zip unzip default-jre build-essential > /dev/null \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Android commandline tools

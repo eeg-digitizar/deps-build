@@ -55,7 +55,7 @@ apt-get update -qq && apt-get install -qq -y libeigen3-dev \
     libatlas-base-dev > /dev/null
 wget --quiet ceres-solver.org/ceres-solver-2.0.0.tar.gz
 tar -xzf ceres-solver-2.0.0.tar.gz
-cmake -S ceres-solver-2.0.0 -B build_ceres -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF > /dev/null
+cmake -S ceres-solver-2.0.0 -B build_ceres -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DBUILD_BENCHMARKS=OFF > /dev/null
 cmake --build build_ceres -j$(nproc) > /dev/null
 cmake --install build_ceres > /dev/null
 

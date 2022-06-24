@@ -16,30 +16,33 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     container: ghcr.io/eeg-digitizar/deps-builder:main
+    strategy:
+      matrix:
+        buildtype: [Debug, Release, RelWithDebInfo, MinSizeRel]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Build Boost
-        run: ./build_boost.sh Debug Release > build_boost.log && rm -rf "Boost-for-Android"
+        run: ./build_boost.sh ${{ matrix.buildtype }} > build_boost.log && rm -rf "Boost-for-Android"
 
       - name: Build fmt
-        run: ./build_fmt.sh Debug Release > build_fmt.log && rm -rf "fmtlib"
+        run: ./build_fmt.sh ${{ matrix.buildtype }} > build_fmt.log && rm -rf "fmtlib"
 
       - name: Build Eigen
-        run: ./build_eigen.sh Debug Release > build_eigen.log && rm -rf "eigen-3.4.0"
+        run: ./build_eigen.sh ${{ matrix.buildtype }} > build_eigen.log && rm -rf "eigen-3.4.0"
 
       - name: Build FreeImage
-        run: ./build_freeimage.sh Debug Release > build_freeimage.log && rm -rf "FreeImage"
+        run: ./build_freeimage.sh ${{ matrix.buildtype }} > build_freeimage.log && rm -rf "FreeImage"
 
       - name: Build glog
-        run: ./build_glog.sh Debug Release > build_glog.log && rm -rf "glog"
+        run: ./build_glog.sh ${{ matrix.buildtype }} > build_glog.log && rm -rf "glog"
 
       - name: Build Ceres
-        run: ./build_ceres.sh Debug Release > build_ceres.log && rm -rf "ceres-solver-2.0.0"
+        run: ./build_ceres.sh ${{ matrix.buildtype }} > build_ceres.log && rm -rf "ceres-solver-2.0.0"
 
       - name: Build COLMAP
-        run: ./build_colmap.sh Debug Release > build_colmap.log && rm -rf "colmap"
+        run: ./build_colmap.sh ${{ matrix.buildtype }} > build_colmap.log && rm -rf "colmap"
 
       - name: Zip DigitizAR-Dependencies
         run: zip -r Libraries.zip Libraries
@@ -47,7 +50,7 @@ jobs:
       - name: Upload DigitizAR-Dependencies
         uses: actions/upload-artifact@v3.1.0
         with:
-          name: DigitizAR-Dependencies
+          name: DigitizAR-Dependencies-${{ matrix.buildtype }}
           path: ${{github.workspace}}/Libraries.zip
           if-no-files-found: error
           retention-days: 90
@@ -55,7 +58,7 @@ jobs:
       - name: Upload Build Logs
         uses: actions/upload-artifact@v3.1.0
         with:
-          name: Build Logs
+          name: ${{ matrix.buildtype }} Build Logs
           path: ${{github.workspace}}/build_*.log
           if-no-files-found: error
           retention-days: 90

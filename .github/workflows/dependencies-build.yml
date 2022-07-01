@@ -38,6 +38,9 @@ jobs:
       - name: Build glog
         run: ./build_glog.sh ${{ matrix.buildtype }} > build_glog.log && rm -rf "glog"
 
+      - name: Build libyuv
+        run: ./build_libyuv.sh ${{ matrix.buildtype }} > build_libyuv.log && rm -rf "glog"
+
       - name: Build Ceres
         run: ./build_ceres.sh ${{ matrix.buildtype }} > build_ceres.log && rm -rf "ceres-solver-2.0.0"
 

@@ -11,6 +11,9 @@ on:
 env:
   ANDROID_LIB_HOME: ${{ github.workspace }}/Libraries
 
+# to upload build-artifacts to a release
+permissions: write-all
+
 jobs:
   build:
     runs-on: ubuntu-20.04

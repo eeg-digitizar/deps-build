@@ -1,11 +1,10 @@
 name: Dependencies
 
 on:
-  schedule:
-    # run every 90 days (artifacts get deleted then)
-    - cron: 1 1 1 3,6,9,12 *
   push:
     branches: ["main"]
+    # Push events to every tag not containing /
+    tags: ["*"]
   pull_request:
     branches: ["main"]
 
@@ -47,21 +46,44 @@ jobs:
       - name: Build COLMAP
         run: ./build_colmap.sh ${{ matrix.buildtype }} > build_colmap.log && rm -rf "colmap"
 
-      - name: Zip DigitizAR-Dependencies
-        run: zip -r Libraries.zip Libraries
+      - name: Zip Dependencies
+        run: zip -r Libraries-${{ matrix.buildtype }}.zip Libraries
 
-      - name: Upload DigitizAR-Dependencies
+      - name: Zip Build Logs
+        run: zip -r Buildlogs-${{ matrix.buildtype }}.zip build_*.log
+
+      - name: Upload Dependencies to artifacts
         uses: actions/upload-artifact@v3.1.0
         with:
-          name: DigitizAR-Dependencies-${{ matrix.buildtype }}
-          path: ${{github.workspace}}/Libraries.zip
+          name: Libraries
+          path: Libraries-${{ matrix.buildtype }}.zip
           if-no-files-found: error
           retention-days: 90
 
-      - name: Upload Build Logs
+      - name: Upload Build Logs to artifacts
         uses: actions/upload-artifact@v3.1.0
         with:
-          name: ${{ matrix.buildtype }} Build Logs
-          path: ${{github.workspace}}/build_*.log
+          name: Build Logs
+          path: Buildlogs-${{ matrix.buildtype }}.zip
           if-no-files-found: error
           retention-days: 90
+
+  release:
+    needs: build
+    runs-on: ubuntu-20.04
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          path: ${{ github.workspace }}
+
+      - name: Upload to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          body: "Prebuilt DigitizAR Dependencies"
+          file: ${{ github.workspace }}/Libraries/*
+          file_glob: true

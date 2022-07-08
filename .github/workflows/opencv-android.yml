@@ -1,0 +1,63 @@
+name: OpenCV Android SDK
+# based on https://github.com/opencv/ci-gha-workflow/blob/6ff0684715c9bf644dd5f176a3d83a9ebd29d78b/.github/workflows/OCV-Android-SDK.yaml
+
+on:
+  push:
+    branches: ["main"]
+    # Push events to every tag not containing /
+    tags: ["*"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  DOCKER_WORKDIR: "/home/ci"
+  OPENCV_VERSION: "4.5.5"
+  CCACHE_DIR: "/home/ci/.ccache"
+
+# to upload build-artifacts to a release
+permissions: write-all
+
+jobs:
+  Build:
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.DOCKER_WORKDIR }}
+    container:
+      image: ghcr.io/eeg-digitizar/opencv-builder:main
+    steps:
+      - name: Fetch sources
+        run: |
+          curl -L -o opencv-${{ env.OPENCV_VERSION }}.zip https://github.com/opencv/opencv/archive/refs/tags/${{ env.OPENCV_VERSION }}.zip
+          unzip opencv-${{ env.OPENCV_VERSION }}.zip
+          curl -L -o opencv_contrib-${{ env.OPENCV_VERSION }}.zip https://github.com/opencv/opencv_contrib/archive/refs/tags/${{ env.OPENCV_VERSION }}.zip
+          unzip opencv_contrib-${{ env.OPENCV_VERSION }}.zip
+      - name: Build
+        run: |
+          mkdir -p ${{ env.CCACHE_DIR }}/tmp
+          mkdir -p /home/ci/build
+          cd /home/ci/build
+          python3 "${{ env.DOCKER_WORKDIR }}/opencv-${{ env.OPENCV_VERSION }}/platforms/android/build_sdk.py" \
+            --no_samples_build \
+            --config "${{ env.DOCKER_WORKDIR }}/opencv-${{ env.OPENCV_VERSION }}/platforms/android/ndk-18-api-level-21.config.py" \
+            --sdk_path "$ANDROID_HOME" \
+            --ndk_path "$ANDROID_NDK_HOME" \
+            --extra_modules_path "${{ env.DOCKER_WORKDIR }}/opencv_contrib-${{ env.OPENCV_VERSION }}/modules" \
+            /home/ci/build
+      - name: Create Package
+        run: cd /home/ci/build && zip -r -9 -y OpenCV4Android.zip OpenCV-android-sdk
+      - name: Upload to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: OpenCV4Android.zip
+          path: /home/ci/build/OpenCV4Android.zip
+      - name: Upload to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          asset_name: OpenCV4Android.zip
+          body: "Prebuilt DigitizAR Dependencies and OpenCV Android SDK with contrib modules"
+          file: /home/ci/build/OpenCV4Android.zip

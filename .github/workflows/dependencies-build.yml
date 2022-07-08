@@ -87,6 +87,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
-          body: "Prebuilt DigitizAR Dependencies"
+          body: "Prebuilt DigitizAR Dependencies and OpenCV Android SDK with contrib modules"
           file: ${{ github.workspace }}/Libraries/*
           file_glob: true

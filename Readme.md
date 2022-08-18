@@ -2,12 +2,16 @@
 This repository contains scripts and instructions to build the DigitizAR dependencies. 
 
 ## Build for Android
-The libraries required to build the Android application can be downloaded from the GitHub Aciton output or crosscompiled inside a Docker Container:
+The dependencies required to build the Android application can be downloaded from the release section (you will need to unzip them before use):
+- OpenCV library with contrib modules (`OpenCV4Android.zip`)
+- Other dependencies with desired build configuration (`Libraries-*.zip`), e.g. `Libraries-Debug.zip` if you want to build a debug version of the app.
+
+You can also crosscompile the dependencies (except for OpenCV) inside a Docker Container:
 1. Build the docker image:
     ```sh
     docker build -t ghcr.io/eeg-digitizar/deps-builder:main - < Dockerfile
     ```
-   alternatively you can pull it from the GitHub Container Registry:
+   Alternatively, you can pull it from the GitHub Container Registry:
     ```sh
     docker pull ghcr.io/eeg-digitizar/deps-builder:main
     ```
@@ -34,6 +38,8 @@ The libraries required to build the Android application can be downloaded from t
     ANDROID_LIB_HOME=~/Libraries
     ```
    In your own projects you can now prepend `ANDROID_LIB_HOME` to CMake's [`CMAKE_FIND_ROOT_PATH`](https://cmake.org/cmake/help/latest/variable/CMAKE_FIND_ROOT_PATH.html#variable:CMAKE_FIND_ROOT_PATH) to use the libraries with the [`find_package()`](https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package) command (use in [*config mode / with full signature*](https://cmake.org/cmake/help/latest/command/find_package.html#id6)).
+
+If you want to build OpenCV with the contrib modules yourself, you can adapt the CI buildscript `.github/workflows/opencv-android.yml`. 
 
 ## Build for PC
 Build and install the libraries if you want to run the DigitizAR pipeline on your PC (e.g. for development):
